@@ -5,25 +5,83 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
 
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    /**
+     * Constants for sensors
+     */
+    private static final float SHAKE_THRESHOLD = 1.1f;
+    private static final int SHAKE_WAIT_TIME_MS = 250;
+    private static final float ROTATION_THRESHOLD = 2.0f;
+    private static final int ROTATION_WAIT_TIME_MS = 100;
+
+    /**
+     * The sounds to play when a pattern is detected
+     */
+    private static MediaPlayer soundAcc;
+    private static MediaPlayer soundGyro;
+
+    /**
+     * Sensors
+     */
+    private SensorManager mSensorManager;
+    private Sensor mSensorAcc;
+    private Sensor mSensorGyr;
+    private long mShakeTime = 0;
+    private long mRotationTime = 0;
+
+    /**
+     * UI
+     */
+    private TextView mGyrox;
+    private TextView mGyroy;
+    private TextView mGyroz;
+    private TextView mAccx;
+    private TextView mAccy;
+    private TextView mAccz;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor mSensorAcc = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        Sensor mSensorGyr = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensorAcc = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorGyr = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        // Instanciate the sound to use
+        soundAcc = MediaPlayer.create(this, R.raw.acc);
+        soundGyro = MediaPlayer.create(this, R.raw.gyro);
+
+        mGyrox = (TextView) findViewById(R.id.gyro_x);
+        mGyroy = (TextView) findViewById(R.id.gyro_y);
+        mGyroz = (TextView) findViewById(R.id.gyro_z);
+        mAccx = (TextView) findViewById(R.id.accele_x);
+        mAccy = (TextView) findViewById(R.id.accele_y);
+        mAccz = (TextView) findViewById(R.id.accele_z);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mSensorAcc, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mSensorGyr, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
     public void onSensorChanged(SensorEvent event) {
-
         if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
-
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 mAccx.setText(R.string.act_main_no_acuracy);
                 mAccy.setText(R.string.act_main_no_acuracy);
@@ -49,6 +107,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    /**
+     * Detect a shake based on the ACCELEROMETER sensor
+     *
+     * @param event
+     */
     private void detectShake(SensorEvent event) {
         long now = System.currentTimeMillis();
 
@@ -69,6 +133,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    /**
+     * Detect a rotation in on the GYROSCOPE sensor
+     *
+     * @param event
+     */
     private void detectRotation(SensorEvent event) {
         long now = System.currentTimeMillis();
 
@@ -84,5 +153,9 @@ public class MainActivity extends AppCompatActivity {
                 soundGyro.start();
             }
         }
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

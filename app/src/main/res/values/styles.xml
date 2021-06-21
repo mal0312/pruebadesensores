@@ -12,11 +12,13 @@
   -->
 
 <resources>
-    <string name="app_name">prueba sensores</string>
 
+    <!-- Base application theme. -->
+    <style name="AppTheme2" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
-    <string name="act_main_gyroscope_label">Giroscopio</string>
-    <string name="act_main_accelerometer_label">Acelerómetro</string>
-
-    <string name="act_main_no_acuracy">Sin Suficiente presición</string>
 </resources>
