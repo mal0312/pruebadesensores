@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -54,6 +55,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorAcc = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorGyr = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+        //verifico que los dispositivos tenga el sensor
+        if (mSensorGyr== null)
+        {
+            Toast.makeText(getApplicationContext(),
+                    "Su dispositivo no posee Giroscopio.Para utilizar esta funcion, debe contar con este sensor.", Toast.LENGTH_LONG).show();
+           // finish ();
+        }
+
+        if (mSensorAcc== null)
+        {
+            Toast.makeText(getApplicationContext(),
+                    "Su dispositivo no posee Acelerómetro.Para utilizar esta funcion, debe contar con este sensor.", Toast.LENGTH_LONG).show();
+           // finish ();
+        }
+
         // Instanciate the sound to use
         soundAcc = MediaPlayer.create(this, R.raw.acc);
         soundGyro = MediaPlayer.create(this, R.raw.gyro);
@@ -81,9 +98,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
-            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                mAccx.setText(R.string.act_main_no_acuracy);
+        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {//no se puede confiar en la exactitud (accuracy del evento)
+            // de los valores capturados por el sensor
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {//si es el acelerometro
+                mAccx.setText(R.string.act_main_no_acuracy); //por cada coordenada indica que no se
                 mAccy.setText(R.string.act_main_no_acuracy);
                 mAccz.setText(R.string.act_main_no_acuracy);
             } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
